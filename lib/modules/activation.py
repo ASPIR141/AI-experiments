@@ -1,7 +1,8 @@
 import torch
+from torch.tensor import Tensor
 
 
-def hardmax(input):
+def hardmax(input: Tensor) -> Tensor:
   r"""hardmax(input) -> Tensor
 
   Applies hardmax function element-wise.

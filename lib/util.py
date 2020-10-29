@@ -1,6 +1,7 @@
 import os
 from functools import partial
 
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from torchvision.utils import save_image
@@ -12,7 +13,7 @@ def show_image(img):
     plt.imshow(np.transpose(npimg, (1, 2, 0)), cmap='gray')
     plt.show()
 
-def save_dataset(root, images, labels):
+def save_dataset(root: str, images: torch.Tensor, labels: torch.Tensor):
     concat_path = partial(os.path.join, root)
     labels_list = list({str(label.item()) for label in labels})
     for folder in map(concat_path, labels_list):
@@ -24,3 +25,6 @@ def save_dataset(root, images, labels):
         value = file_names.get(label)
         file_names[label] = value + 1 if value is not None else 0
         save_image(img, f'images/{label}/{idx + file_names[label]}.png') # join path
+
+def rearrange_dataset(targets: torch.Tensor, label: int) -> torch.Tensor:
+  return (targets == label).type(torch.uint8)

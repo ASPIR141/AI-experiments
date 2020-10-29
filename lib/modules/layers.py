@@ -1,8 +1,10 @@
 import torch
 from itertools import product
+from torch.tensor import Tensor
+from typing import Iterable, List, Tuple
 
 
-def confusion_layer(p, l, k):
+def confusion_layer(p: Tensor, l: Tensor, k: int) -> Tuple[List[float], List[str]]:
     """
     Arguments:
         p: Tensor, probabilities from softmax layer.
@@ -13,18 +15,18 @@ def confusion_layer(p, l, k):
         probabilities, labels: Tuple[List[Float], List[Str]]
     """
 
-    def combinations(iterable, r):
+    def combinations(iterable: Iterable, r: int):
         pool = tuple(iterable)
         n = len(pool)
         for indices in product(range(n), repeat=r):
             yield tuple(pool[i] for i in indices)
 
-    def calculate_probabilities(array, v, tax):
+    def calculate_probabilities(array: List[Tuple[int]], v: int, tax: int) -> Tensor:
         """
         Arguments:
             array: [(1, 1), (1, 0), (0, 1), (0, 0)]
-            v:
-            tax:
+            v: Integer
+            tax: Integer
 
         Returns:
             A list of Tensors: tensor([1., 0., 0., 0.])
