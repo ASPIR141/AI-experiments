@@ -11,6 +11,7 @@ from lib.networks.classifier import Net
 from lib.datasets.custom_dataset import CustomDataset
 from lib.modules.layers import confusion_layer
 from lib.modules.activation import hardmax
+from lib.util import save_dataset
 
 def main():
     parser = argparse.ArgumentParser()
@@ -73,9 +74,10 @@ def main():
             # correct += pred.eq(target.view_as(pred)).sum().item()
             # print(correct)
 
-        images_list = torch.cat(images_list)
-        new_dataset = CustomDataset(data=images_list, targets=torch.as_tensor(labels_list))
-        torch.save(new_dataset, 'dataset.pt')
+        # images_list = torch.cat(images_list)
+        # new_dataset = CustomDataset(data=images_list, targets=torch.as_tensor(labels_list))
+        # torch.save(new_dataset, 'dataset.pt')
+        save_dataset('./images', images_list, labels_list)
 
 if __name__ == '__main__':
     main()
