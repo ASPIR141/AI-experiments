@@ -34,10 +34,10 @@ def main():
 
     transform=transforms.Compose([
         transforms.ToTensor(),
-        [transforms.Resize(32), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
+        transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    testset = datasets.MNIST("./data/mnist", train=False, download=True, transform=transform)
+    testset = datasets.MNIST("./data/mnist", train=True, download=True, transform=transform)
     test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False)
 
     results = []
@@ -53,8 +53,9 @@ def main():
 
         classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-        images_list = []
-        labels_list = []
+        # images_list = []
+        # labels_list = []
+        file_names = {}
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output, x = model(data)
@@ -65,9 +66,10 @@ def main():
             print('Result ', target)
             print('Labels', labels)
 
-            images_list.append(data.cpu())
-            labels_list = labels_list + labels
-            break
+            save_dataset('./images', data, labels, file_names)
+            # images_list.append(data.cpu())
+            # labels_list = labels_list + labels
+            # labels_list.append(labels)
 
             # imshow(torchvision.utils.make_grid(data.cpu()))
             # print(pred.cpu().numpy())
@@ -77,7 +79,6 @@ def main():
         # images_list = torch.cat(images_list)
         # new_dataset = CustomDataset(data=images_list, targets=torch.as_tensor(labels_list))
         # torch.save(new_dataset, 'dataset.pt')
-        save_dataset('./images', images_list, labels_list)
 
 if __name__ == '__main__':
     main()
