@@ -30,7 +30,7 @@ def hardmax(input: Tensor) -> Tensor:
 
 def hardsquaremax(input: Tensor) -> Tensor:
   x = input.clone()
-  m = torch.sum(torch.sqrt(input), dim=1, keepdim=True)
+  m = torch.sqrt(torch.sum((torch.pow(input, 2)), dim=1, keepdim=True))
   for idx, sum_i in enumerate(m):
     if sum_i == 0:
       m[idx] = 1

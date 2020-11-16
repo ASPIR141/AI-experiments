@@ -50,7 +50,7 @@ def confusion_layer(p: Tensor, l: Tensor, k: int) -> Tuple[List[float], List[str
 
     # create all possible combinations and represent each combination as a tensor to find the diagonal elements
     # tensor([0., 1.]) -> tensor([[[0., 0.],[0., 1.]], [[1., 0.],[1., 1.]]])
-    c = [torch.tensor(list(combinations(x, 2)), dtype=torch.float).view(k, -1, k) for x in p]
+    c = [torch.tensor(list(combinations(x, 2)), dtype=torch.float).view(k, -1, 2) for x in p]
 
     labels = ([f'{x}_{y}' for x, y in product(l, l)])
 
