@@ -1,10 +1,10 @@
 import os
 from functools import partial
+from typing import List, Dict
 
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List, Dict
 from torchvision.utils import save_image
 
 

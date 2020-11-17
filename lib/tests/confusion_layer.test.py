@@ -1,6 +1,9 @@
 import unittest
 
 import torch
+
+import sys
+[sys.path.append(i) for i in ['.', '..']]
 from lib.modules.layers import confusion_layer
 
 
