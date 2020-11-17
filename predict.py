@@ -8,7 +8,6 @@ import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
 from lib.networks.classifier import Net
-from lib.datasets.custom_dataset import CustomDataset
 from lib.modules.layers import confusion_layer
 from lib.modules.activation import hardmax
 from lib.util import save_dataset
@@ -48,37 +47,28 @@ def main():
         model = Net(ngpu).to(device)
         model = nn.DataParallel(model, list(range(ngpu)))
 
-        model.load_state_dict(torch.load('classifier.pt'))
+        model.load_state_dict(torch.load('./models/classifier.pt'))
         model.eval()
 
         classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-        # images_list = []
-        # labels_list = []
         file_names = {}
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output, x = model(data)
 
-            # pred = output.argmax(dim=1, keepdim=True)
-            x = hardmax(x)
-            probabilities, labels = confusion_layer(x, classes, len(classes))
+            output = torch.exp(output)
+            # x = hardmax(x)
+            probabilities, labels = confusion_layer(output, classes, len(classes))
             print('Result ', target)
             print('Labels', labels)
 
             save_dataset('./images', data, labels, file_names)
-            # images_list.append(data.cpu())
-            # labels_list = labels_list + labels
-            # labels_list.append(labels)
 
-            # imshow(torchvision.utils.make_grid(data.cpu()))
-            # print(pred.cpu().numpy())
+            # pred = output.argmax(dim=1, keepdim=True)
             # correct += pred.eq(target.view_as(pred)).sum().item()
             # print(correct)
-
-        # images_list = torch.cat(images_list)
-        # new_dataset = CustomDataset(data=images_list, targets=torch.as_tensor(labels_list))
-        # torch.save(new_dataset, 'dataset.pt')
+            # imshow(torchvision.utils.make_grid(data.cpu()))
 
 if __name__ == '__main__':
     main()
