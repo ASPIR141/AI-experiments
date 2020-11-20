@@ -3,3 +3,5 @@ numpy==1.18.5
 torch==1.6.0
 torchvision==0.7.0
 typing==3.7.4.3
+pyspark==3.0.1
+petastorm==0.9.7

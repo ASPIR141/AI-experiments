@@ -129,3 +129,6 @@ dmypy.json
 
 data
 .vscode
+
+tmp
+images
