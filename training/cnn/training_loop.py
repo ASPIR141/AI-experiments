@@ -27,13 +27,13 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    trainset = datasets.MNIST("./data/mnist", train=True, download=True, transform=transform)
+    trainset = datasets.MNIST("./assets/data/mnist", train=True, download=True, transform=transform)
     train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 
-    testset = datasets.MNIST("./data/mnist", train=False, download=True, transform=transform)
+    testset = datasets.MNIST("./assets/data/mnist", train=False, download=True, transform=transform)
     test_loader = DataLoader(testset, batch_size=batch_size, shuffle=True)
 
-    model = Net(ngpu).to(device)
+    model = Net().to(device)
     loss = nn.NLLLoss() # This criterion combines nn.LogSoftmax() and nn.NLLLoss() in one single class.
 
     if use_cuda:
@@ -44,11 +44,11 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
     # optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
     optimizer = optim.Adam(model.parameters())
 
-    scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
+    # scheduler = StepLR(optimizer, step_size=1, gamma=gamma) #  FIXME don't use sheduler with adam optimizer 
     for epoch in range(1, epochs + 1):
         train(model, device, train_loader, loss, optimizer, epoch, log_interval)
         test(model, device, loss, test_loader)
-        scheduler.step()
+        # scheduler.step()
 
     if save_model:
         torch.save(model.state_dict(), "../classifier.pt")

@@ -104,12 +104,12 @@ def main():
         transformed_dataset, batch_size=args.batch_size, shuffle=False)
 
     with torch.no_grad():
-        model = Net(ngpu).to(device) # TODO: Remove ngpu from model
+        model = Net().to(device) 
 
         if use_cuda and ngpu > 1:
             model = nn.DataParallel(model, list(range(ngpu)))
 
-        model.load_state_dict(torch.load('./models/classifier.pt'))
+        model.load_state_dict(torch.load('./assets/models/classifier.pt'))
         model.eval()
 
         classes = list(testset.class_to_idx.values())

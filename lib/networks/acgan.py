@@ -1,9 +1,12 @@
 import torch
 import torch.nn as nn
 
+# https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/acgan/acgan.py
+
 
 class Generator(nn.Module):
-    def __init__(self, img_size, n_classes, channels, latent_dim, ngpu):
+    
+    def __init__(self, img_size, channels, n_classes, latent_dim, ngpu):
         super(Generator, self).__init__()
 
         self.ngpu = ngpu
@@ -36,7 +39,8 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, img_size, n_classes, ngpu):
+
+    def __init__(self, img_size, channels, n_classes, ngpu):
         super(Discriminator, self).__init__()
 
         self.ngpu = ngpu
@@ -49,7 +53,7 @@ class Discriminator(nn.Module):
             return block
 
         self.conv_blocks = nn.Sequential(
-            *discriminator_block(opt.channels, 16, bn=False), # TODO: fix opt
+            *discriminator_block(n_channels, 16, bn=False), 
             *discriminator_block(16, 32),
             *discriminator_block(32, 64),
             *discriminator_block(64, 128),

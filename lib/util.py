@@ -25,7 +25,7 @@ def save_dataset(root: str, images: List[torch.Tensor], labels: List[torch.Tenso
         label = labels[idx] # str(labels[idx].item())
         value = file_names.get(label)
         file_names[label] = value + 1 if value is not None else 0
-        save_image(img, f'images/{label}/{file_names[label]}.png') # join path
+        save_image(img, f'assets/images/{label}/{file_names[label]}.png') # join path #FIXME
 
 def rearrange_dataset(targets: torch.Tensor, label: int) -> torch.Tensor:
-  return (targets == label).type(torch.uint8)
+    return (targets == label).type(torch.uint8)

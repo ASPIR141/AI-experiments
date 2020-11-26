@@ -33,7 +33,7 @@ print(opt)
 
 cuda = True if torch.cuda.is_available() else False
 ngpu = torch.cuda.device_count()
-device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+device = torch.device("cuda:0" if (cuda and ngpu > 0) else "cpu") 
 
 FloatTensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 LongTensor = torch.cuda.LongTensor if cuda else torch.LongTensor
@@ -64,13 +64,14 @@ auxiliary_loss = torch.nn.CrossEntropyLoss()
 # Initialize generator and discriminator
 generator = Generator(
   opt.image_size,
-  opt.n_classes,
   opt.channels,
+  opt.n_classes,
   opt.latent_dim,
   ngpu
 ).to(device)
 discriminator = Discriminator(
   opt.image_size,
+  opt.channels,
   opt.n_classes,
   ngpu
 ).to(device)
@@ -90,10 +91,10 @@ optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1,
 optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 
 # Configure data loader
-os.makedirs("./data/mnist", exist_ok=True)
+os.makedirs("./assets/data/mnist", exist_ok=True)
 dataloader = DataLoader(
     datasets.MNIST(
-        "./data/mnist",
+        "./assets/data/mnist",
         train=True,
         download=True,
         transform=transforms.Compose(

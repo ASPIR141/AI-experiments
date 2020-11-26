@@ -3,7 +3,6 @@ from torch import FloatTensor
 from torch.tensor import Tensor
 from typing import List, Tuple, Iterable
 from itertools import product
-from typing import Iterable
 
 
 def combinations(iterable: Iterable, r: int):
@@ -31,6 +30,7 @@ def calculate_probabilities(array: FloatTensor, v: FloatTensor, tax: FloatTensor
                 probabilities.append(i * v)
             else:
                 i, j = value
+                # FIXME 
                 probabilities.append(torch.tensor(0., device='cuda' if torch.cuda.is_available() else 'cpu') if i == 1 else ((i * j) / (1 - i)) * tax)
     return torch.stack(probabilities)
 

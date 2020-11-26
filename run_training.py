@@ -4,7 +4,7 @@ from training.cnn.training_loop import training_loop
 
 
 def run(batch_size, epochs, gamma, seed, log_interval, save_model):
-  training_loop(batch_size, epochs, gamma, seed, log_interval, save_model)
+    training_loop(batch_size, epochs, gamma, seed, log_interval, save_model)
 
 def main():
     parser = argparse.ArgumentParser()

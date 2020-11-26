@@ -2,8 +2,8 @@ import torch
 from torch.tensor import Tensor
 
 
-def hardmax(input: Tensor) -> Tensor:
-  r"""hardmax(input) -> Tensor
+def hardmax(X_in: Tensor) -> Tensor:
+  r"""hardmax(X_in) -> Tensor
 
   Applies hardmax function element-wise.
   Elements will be probability distributions that sum to 1
@@ -11,14 +11,14 @@ def hardmax(input: Tensor) -> Tensor:
   non-linearity effect typical to the Softmax procedure.
 
   Args:
-    input (Tensor): the input tensor.
+    X_in (Tensor): the input tensor.
 
   Returns:
     A tensor of the same shape as input.
   """
 
-  x = input.clone()
-  m = torch.sum(torch.abs(input), dim=1, keepdim=True)
+  x = X_in.clone()
+  m = torch.sum(torch.abs(x), dim=1, keepdim=True)
   for idx, sum_i in enumerate(m):
     if sum_i == 0:
       m[idx] = 1
@@ -28,9 +28,9 @@ def hardmax(input: Tensor) -> Tensor:
   return output
 
 
-def hardsquaremax(input: Tensor) -> Tensor:
-  x = input.clone()
-  m = torch.sqrt(torch.sum((torch.pow(input, 2)), dim=1, keepdim=True))
+def hardsquaremax(X_in: Tensor) -> Tensor:
+  x = X_in.clone()
+  m = torch.sqrt(torch.sum((torch.pow(x, 2)), dim=1, keepdim=True))
   for idx, sum_i in enumerate(m):
     if sum_i == 0:
       m[idx] = 1
