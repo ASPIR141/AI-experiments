@@ -10,6 +10,8 @@ import torchvision.transforms as transforms
 from .train import train, test
 from lib.networks.classifier import Net
 
+from tqdm import tqdm
+
 
 def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
     torch.manual_seed(seed)
@@ -45,9 +47,9 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
     optimizer = optim.Adam(model.parameters())
 
     # scheduler = StepLR(optimizer, step_size=1, gamma=gamma) #  FIXME don't use sheduler with adam optimizer 
-    for epoch in range(1, epochs + 1):
+    for epoch in tqdm(range(1, epochs + 1)):
         train(model, device, train_loader, loss, optimizer, epoch, log_interval)
-        test(model, device, loss, test_loader)
+        test(model, device, loss, test_loader, epoch)
         # scheduler.step()
 
     if save_model:
