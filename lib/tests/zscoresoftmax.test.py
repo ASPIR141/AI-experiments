@@ -5,15 +5,15 @@ import numpy as np
 
 import sys
 [sys.path.append(i) for i in ['.', '..']]
-from lib.modules.activation import zScoreSoftMax
+from lib.modules.activation import z_score_softmax
 
 
-class ZScoreSoftMaxTestCase(unittest.TestCase):
+class z_score_softmaxTestCase(unittest.TestCase):
     def setUp(self):
-        self.zScoreSoftMax = zScoreSoftMax
+        self.z_score_softmax = z_score_softmax
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    def test_zScoreSoftMax(self):
+    def test_z_score_softmax(self):
         logits = [
             torch.tensor([[-60, 0, 10, 250]], dtype=torch.float16, device=self.device),
         ]
@@ -22,7 +22,7 @@ class ZScoreSoftMaxTestCase(unittest.TestCase):
         ]
 
         for idx, z in enumerate(logits):
-            result = self.zScoreSoftMax(z)
+            result = self.z_score_softmax(z)
             np.testing.assert_almost_equal(expected_results[idx], result.tolist(), decimal=2)
 
 

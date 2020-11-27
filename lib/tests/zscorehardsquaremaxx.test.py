@@ -5,15 +5,15 @@ import numpy as np
 
 import sys
 [sys.path.append(i) for i in ['.', '..']]
-from lib.modules.activation import zScoreHardSquareMax
+from lib.modules.activation import z_score_hardsquaremax
 
 
-class ZScoreHardSquareMaxTestCase(unittest.TestCase):
+class z_score_hardsquaremaxTestCase(unittest.TestCase):
     def setUp(self):
-        self.zScoreHardSquareMax = zScoreHardSquareMax
+        self.z_score_hardsquaremax = z_score_hardsquaremax
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    def test_zScoreHardSquareMax(self):
+    def test_z_score_hardsquaremax(self):
         logits = [
             torch.tensor([[-60, 0, 10, 250]], dtype=torch.float16, device=self.device),
             torch.tensor([[0.1, 0.2, 0.3]], dtype=torch.float16, device=self.device),
@@ -24,7 +24,7 @@ class ZScoreHardSquareMaxTestCase(unittest.TestCase):
         ]
 
         for idx, z in enumerate(logits):
-            result = self.zScoreHardSquareMax(z)
+            result = self.z_score_hardsquaremax(z)
             np.testing.assert_almost_equal(expected_results[idx], result.tolist(), decimal=2)
 
 
