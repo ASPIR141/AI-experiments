@@ -11,16 +11,18 @@ def combinations(iterable: Iterable, r: int):
     for indices in product(range(n), repeat=r):
         yield tuple(pool[i] for i in indices)
 
-def calculate_probabilities(array: FloatTensor, v: FloatTensor, tax: FloatTensor) -> Tensor:
+def calculate_probabilities(array: FloatTensor, v: FloatTensor, tax: FloatTensor) -> List[Tensor]:
     """
     Arguments:
-        array: tensor([[[0., 0.],[0., 1.]], [[1., 0.],[1., 1.]]])
-        v: Integer
-        tax: Integer
+        array: FloatTensor, tensor([[[0., 0.],[0., 1.]], [[1., 0.],[1., 1.]]])
+        v: FloatTensor (with one number)
+        tax: FloatTensor (with one number)
 
     Returns:
         A list of Tensors: tensor([0., 0., 0., 1.])
     """
+    assert(array.device == v.device == tax.device) 
+    device = array.device
 
     probabilities = []
     for idx, a in enumerate(array):
@@ -30,27 +32,29 @@ def calculate_probabilities(array: FloatTensor, v: FloatTensor, tax: FloatTensor
                 probabilities.append(i * v)
             else:
                 i, j = value
-                # FIXME 
-                probabilities.append(torch.tensor(0., device='cuda' if torch.cuda.is_available() else 'cpu') if i == 1 else ((i * j) / (1 - i)) * tax)
+                probabilities.append(torch.tensor(0., device=device) if i == 1 else ((i * j) / (1 - i)) * tax)
     return torch.stack(probabilities)
 
-def confusion_layer(p: Tensor, l: Tensor, k: int) -> Tuple[List[float], List[str]]:
+def confusion_layer(p: Tensor, l: List, k: int) -> Tuple[List[float], List[str]]:
     """
     Arguments:
         p: Tensor, probabilities from softmax layer.
-        l: Tensor, list of labels.
+        l: List, list of labels.
         k: Integer, a number of classes.
 
     Returns:
         probabilities, labels: Tuple[List[Float], List[Str]]
     """
+    device = p.device
 
     v = torch.sqrt((k / (k - 1)) * torch.sum((p - 1 / k) ** 2, dim=1))
     tax = 1 - v
 
+    v, t = v.to(device), tax.to(device)
+
     # create all possible combinations and represent each combination as a tensor to find the diagonal elements
     # tensor([0., 1.]) -> tensor([[[0., 0.],[0., 1.]], [[1., 0.],[1., 1.]]])
-    c = [torch.tensor(list(combinations(x, 2)), dtype=torch.float).view(k, -1, 2) for x in p]
+    c = [torch.tensor(list(combinations(x, 2)), dtype=torch.float).view(k, -1, 2).to(device) for x in p]
 
     labels = ([f'{x}_{y}' for x, y in product(l, l)])
 
