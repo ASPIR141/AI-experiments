@@ -37,6 +37,7 @@ def hardsquaremax(X_in: Tensor) -> Tensor:
             x[idx][x[idx] == 0] = 1
     s = x.add(m) / (2 * m)
     output = s / torch.sum(s, dim=1, keepdim=True)
+<<<<<<< HEAD
     return output
 
 
@@ -67,3 +68,6 @@ def zScoreHardSquareMax(logits: Tensor) -> Tensor:
     probabilities = hardsquaremax(z_norm)
     return probabilities
 
+=======
+    return output
+>>>>>>> refactor
