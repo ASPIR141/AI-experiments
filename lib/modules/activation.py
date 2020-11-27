@@ -16,28 +16,28 @@ def hardmax(X_in: Tensor) -> Tensor:
     Returns:
         A tensor of the same shape as input.
     """
+    assert(len(X_in.shape) >= 2)
 
-    x = X_in.clone()
-    m = torch.sum(torch.abs(x), dim=1, keepdim=True)
+    m = torch.sum(torch.abs(X_in), dim=1, keepdim=True)
     for idx, sum_i in enumerate(m):
         if sum_i == 0:
             m[idx] = 1
-            x[idx][x[idx] == 0] = 1
-    s = x.add(m) / (2 * m)
+            X_in[idx][X_in[idx] == 0] = 1
+    s = X_in.add(m) / (2 * m)
     output = s / torch.sum(s, dim=1, keepdim=True)
     return output
 
 
 def hardsquaremax(X_in: Tensor) -> Tensor:
-    x = X_in.clone()
-    m = torch.sqrt(torch.sum((torch.pow(x, 2)), dim=1, keepdim=True))
+    assert(len(X_in.shape) >= 2)
+    # x = X_in.clone() # XXX tensors pass by value, don't ref
+    m = torch.sqrt(torch.sum((torch.pow(X_in, 2)), dim=1, keepdim=True))
     for idx, sum_i in enumerate(m):
         if sum_i == 0:
             m[idx] = 1
-            x[idx][x[idx] == 0] = 1
-    s = x.add(m) / (2 * m)
+            X_in[idx][X_in[idx] == 0] = 1
+    s = X_in.add(m) / (2 * m)
     output = s / torch.sum(s, dim=1, keepdim=True)
-<<<<<<< HEAD
     return output
 
 
@@ -45,12 +45,11 @@ def zScore(logits: Tensor) -> Tensor:
     '''
     Normalize logits
     '''
-    mean1 = torch.mean(logits)
-    k = len(logits)
-    mean2 = torch.sum([z/k for z in logits])
-    print(mean1, mean2)
-    deviation = torch.sqrt(torch.sum([torch.pow(z-mean1, 2) for z in logits])/k)
-    z_norm = [(z-mean1)/deviation for z in logits]
+    assert(len(logits.shape) >= 2)
+
+    mean = torch.mean(logits)
+    deviation = torch.sqrt(torch.sum(torch.pow(logits - mean, 2))/len(logits))
+    z_norm = (logits - mean)/deviation
     return z_norm
 
 
@@ -62,12 +61,7 @@ def zScoreHardSquareMax(logits: Tensor) -> Tensor:
     Sum of probalities = 1.
     Makes it possible to compromise between SoftMax and HardMax.
     '''
-    # stage 1 z-score normalization
     z_norm = zScore(logits)
-    # stage 2 hardsquaremax
     probabilities = hardsquaremax(z_norm)
     return probabilities
 
-=======
-    return output
->>>>>>> refactor
