@@ -17,7 +17,7 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
     torch.manual_seed(seed)
 
     use_cuda = True if torch.cuda.is_available() else False
-    if use_cuda: # TODO: add cuda checks across all code
+    if use_cuda:
         torch.cuda.set_device(0)
         print('CUDA support is enabled')
 
