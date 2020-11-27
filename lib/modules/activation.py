@@ -65,3 +65,15 @@ def zScoreHardSquareMax(logits: Tensor) -> Tensor:
     probabilities = hardsquaremax(z_norm)
     return probabilities
 
+
+def zScoreHardMax(logits: Tensor) -> Tensor:
+    '''
+    logits: Tensor, k-dimensional output from last layer. 
+        Each value is  a score defined on the interval (-inf, +inf)
+    
+    Sum of probalities = 1.
+    Makes it possible to compromise between SoftMax and HardMax.
+    '''
+    z_norm = zScore(logits)
+    probabilities = hardmax(z_norm)
+    return probabilities
