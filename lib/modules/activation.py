@@ -77,3 +77,17 @@ def zScoreHardMax(logits: Tensor) -> Tensor:
     z_norm = zScore(logits)
     probabilities = hardmax(z_norm)
     return probabilities
+
+# FIXME tests fail
+def zScoreSoftMax(logits: Tensor) -> Tensor:
+    '''
+    logits: Tensor, k-dimensional output from last layer. 
+        Each value is  a score defined on the interval (-inf, +inf)
+    
+    Sum of probalities = 1.
+    Makes it possible to soften the effect "winners takes all" of SoftMax.
+    '''
+    z_norm = zScore(logits)
+    # probabilities = torch.nn.Softmax(z_norm).dim
+    probabilities = torch.exp(z_norm)/torch.sum(torch.exp(z_norm), dim=1, keepdim=True)
+    return probabilities
