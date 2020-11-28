@@ -66,3 +66,22 @@ def confusion_layer(p: Tensor, l: List, k: int) -> Tuple[List[float], List[str]]
     labels = [labels[i] for i in max_probabilities_indexes]
     probabilities = [round(torch.max(x).item(), 2) for x in probabilities]
     return probabilities, labels
+
+
+def dummy_confusion_layer(probabilities: Tensor, labels: List, k: int) -> List[str]:
+    new_labels = []
+    lbls_to_idx = list(map(int, labels))
+    max_probabilities_indexes = [torch.argmax(sample).item() for sample in probabilities]
+
+    for row, (i, j) in enumerate(zip(lbls_to_idx, max_probabilities_indexes)):
+        if probabilities[row][i] != probabilities[row][j]:
+            new_labels.append(f'{i}_{j}')
+        else:
+            row_p = probabilities[row].clone()
+            row_p[i] = -row_p[i]
+            j = torch.argmax(row_p).item()
+            if probabilities[row][i] <= 2*probabilities[row][j]:
+                new_labels.append(f'{i}_{j}')
+            else:
+                new_labels.append(f'{i}_{i}')
+    return new_labels

@@ -10,6 +10,7 @@ from lib.modules.activation import hardmax
 
 class HardmaxTestCase(unittest.TestCase):
     def setUp(self):
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.hardmax = hardmax
 
     def test_hardmax(self):
@@ -19,7 +20,7 @@ class HardmaxTestCase(unittest.TestCase):
                             [-2, -2, -2],
                             [-1, 0, 1],
                             [-2, 1, 1],
-                            [-10, -15, 5]], dtype=torch.float16)
+                            [-10, -15, 5]], dtype=torch.float16, device=self.device)
         expected_results = [[0.3333, 0.3333, 0.3333],
                             [0.3333, 0.3333, 0.3333],
                             [0.3333, 0.3333, 0.3333],
