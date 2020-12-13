@@ -7,3 +7,4 @@ pyspark==3.0.1
 petastorm==0.9.7
 tensorboard
 tqdm
+Flask==1.1.2
