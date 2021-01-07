@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 
-# FIXME
+
 class CustomDataset(Dataset):
     # https://pytorch.org/docs/1.1.0/_modules/torchvision/datasets/mnist.html
 

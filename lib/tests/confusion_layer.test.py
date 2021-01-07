@@ -1,6 +1,5 @@
-import unittest
-
 import torch
+import unittest
 
 import sys
 [sys.path.append(i) for i in ['.', '..']]
@@ -18,7 +17,8 @@ class LayerTestCase(unittest.TestCase):
                          0.5, 0.5], [0.4, 0.6], [0.25, 0.75], [0.2, 0.8], [1, 0]], device=self.device),
         ]
         labels = ['0', '1']
-        expected_results = [[1.0, 0.48, 0.38, 0.48, 0.5, 0.48, 0.38, 0.48, 1.0]]
+        expected_results = [
+            [1.0, 0.48, 0.38, 0.48, 0.5, 0.48, 0.38, 0.48, 1.0]]
 
         for idx, p in enumerate(probabilities):
             result, _ = self.layer(p, labels, 2)

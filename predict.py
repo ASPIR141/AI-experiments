@@ -1,4 +1,3 @@
-from lib.modules.activation import z_score_softmax
 import os
 import argparse
 
@@ -17,10 +16,9 @@ from petastorm.etl.dataset_metadata import materialize_dataset
 from petastorm.unischema import dict_to_spark_row
 
 from lib.networks import Net
-from lib.modules import confusion_layer
-from lib.modules import hardmax, hardsquaremax, z_score_hardmax, z_score_hardsquaremax
-from lib.util import save_dataset
 from lib.schemas import MnistSchema
+from lib.modules.layers import confusion_layer
+from lib.modules.activation import z_score_hardmax, z_score_hardsquaremax, z_score_softmax
 
 DEFAULT_MNIST_DATA_PATH = '/Users/PC-1/Downloads/AI-Immune-System/tmp'
 
@@ -30,19 +28,21 @@ os.environ["HADOOP_HOME"] = "C:\winutils"
 
 def _arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", type=int, default=5,
+    parser.add_argument("--batch_size", type=int, default=64,
                         help="size of the batches")
     parser.add_argument("--img_size", type=int, default=32,
                         help="size of each image dimension")
     parser.add_argument("--channels", type=int, default=1,
                         help="number of image channels")
-    parser.add_argument('--no-cuda', action='store_true', default=False,
+    parser.add_argument('--no_cuda', action='store_true', default=False,
                         help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--output-url', type=str,
                         default='file://{}'.format(DEFAULT_MNIST_DATA_PATH), metavar='S',
                         help='hdfs://... or file:/// url where the parquet dataset will be written to.')
+    parser.add_argument('--no_spark', action='store_true', default=True,
+                        help='disables Spark and Petastorm')
     return parser
 
 
@@ -109,8 +109,10 @@ def main():
 
         if use_cuda and ngpu > 1:
             model = nn.DataParallel(model, list(range(ngpu)))
+        else:
+            model = nn.DataParallel(model)
 
-        model.load_state_dict(torch.load('./classifier.pt'))
+        model.load_state_dict(torch.load('./classifier.pt', map_location=device))
         model.eval()
 
         classes = list(testset.class_to_idx.values())
@@ -120,19 +122,20 @@ def main():
             data, target = data.to(device), target.to(device)
             output, x = model(data)
 
-            # output = torch.exp(output)  # get probabilities
             output = z_score_hardsquaremax(x)
-            probabilities, labels = confusion_layer(
+
+            _, labels = confusion_layer(
                 output, classes, len(classes))
 
-            print(f'Result: {labels}\n Target: {target}', target)
+            print(f'\nResult: {labels}\n Target: {target}')
             labels_list += labels
 
-        mnist_data_to_petastorm_dataset(
-            data=_transform_dataset(list(testset), labels_list),
-            output_url=args.output_url,
-            dataset_name='z_score_hardmax'
-        )
+        if not args.no_spark:
+            mnist_data_to_petastorm_dataset(
+                data=_transform_dataset(list(testset), labels_list),
+                output_url=args.output_url,
+                dataset_name='z_score_hardmax'
+            )
 
 
 if __name__ == '__main__':

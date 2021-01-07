@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.optim.lr_scheduler import StepLR
 
 from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
@@ -14,7 +13,6 @@ from tqdm import tqdm
 
 
 def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
-    print('Save model', save_model)
     torch.manual_seed(seed)
 
     use_cuda = True if torch.cuda.is_available() else False
@@ -43,15 +41,12 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
         model = nn.DataParallel(model, list(range(ngpu)))
         loss.cuda()
 
-    # optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    # optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
     optimizer = optim.Adam(model.parameters())
 
-    # scheduler = StepLR(optimizer, step_size=1, gamma=gamma) #  FIXME don't use sheduler with adam optimizer 
+    # scheduler = StepLR(optimizer, step_size=1, gamma=gamma) #  FIXME don't use sheduler with adam optimizer
     for epoch in tqdm(range(1, epochs + 1)):
         train(model, device, train_loader, loss, optimizer, epoch, log_interval)
         test(model, device, loss, test_loader, epoch)
-        # scheduler.step()
 
     if save_model:
         torch.save(model.state_dict(), "./classifier.pt")

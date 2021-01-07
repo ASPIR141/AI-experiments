@@ -18,10 +18,10 @@ def train(model, device, train_loader, criterion, optimizer, epoch, log_interval
         train_loss += loss
         loss.backward()
         optimizer.step()
-        
+
     writer.add_scalar('train/loss', loss.item(), global_step=epoch)
     writer.add_scalar('train/accuracy', 100. * correct / len(train_loader.dataset), global_step=epoch)
-        # if batch_idx % log_interval == 0: 
+        # if batch_idx % log_interval == 0:
             # print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
             #     epoch, batch_idx * len(data), len(train_loader.dataset),
             #     100. * batch_idx / len(train_loader), loss.item())
@@ -29,7 +29,7 @@ def train(model, device, train_loader, criterion, optimizer, epoch, log_interval
             # if dry_run:
             #     break
 
-def test(model, device, criterion, test_loader, epoch):    
+def test(model, device, criterion, test_loader, epoch):
     model.eval()
     test_loss = 0
     correct = 0
@@ -52,15 +52,3 @@ def test(model, device, criterion, test_loader, epoch):
     #     test_loss, correct, len(test_loader.dataset),
     #     100. * correct / len(test_loader.dataset))
     # )
-
-
-# classes = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-
-# get some random training images
-# dataiter = iter(trainloader)
-# images, labels = dataiter.next()
-
-# show images
-# imshow(torchvision.utils.make_grid(images))
-# print labels
-# print(' '.join('%5s' % classes[labels[j]] for j in range(4)))

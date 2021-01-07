@@ -55,7 +55,7 @@ def z_score(logits: Tensor) -> Tensor:
 
 def z_score_hardsquaremax(logits: Tensor) -> Tensor:
     '''
-    logits: Tensor, k-dimensional output from last layer. 
+    logits: Tensor, k-dimensional output from last layer.
         Each value is  a score defined on the interval (-inf, +inf)
 
     Sum of probalities = 1.
@@ -68,7 +68,7 @@ def z_score_hardsquaremax(logits: Tensor) -> Tensor:
 
 def z_score_hardmax(logits: Tensor) -> Tensor:
     '''
-    logits: Tensor, k-dimensional output from last layer. 
+    logits: Tensor, k-dimensional output from last layer.
         Each value is  a score defined on the interval (-inf, +inf)
 
     Sum of probalities = 1.
@@ -78,12 +78,10 @@ def z_score_hardmax(logits: Tensor) -> Tensor:
     probabilities = hardmax(z_norm)
     return probabilities
 
-# FIXME tests fail
-
 
 def z_score_softmax(logits: Tensor) -> Tensor:
     '''
-    logits: Tensor, k-dimensional output from last layer. 
+    logits: Tensor, k-dimensional output from last layer.
         Each value is  a score defined on the interval (-inf, +inf)
 
     Sum of probalities = 1.
