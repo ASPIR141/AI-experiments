@@ -46,9 +46,9 @@ def z_score(logits: Tensor) -> Tensor:
     '''
     assert(len(logits.shape) >= 2)
 
-    mean = torch.mean(logits)
+    mean = torch.mean(logits, dim=1, keepdim=True)
     deviation = torch.sqrt(
-        torch.sum(torch.pow(logits - mean, 2))/logits.size()[1])
+        torch.sum(torch.pow(logits - mean, 2), dim=1, keepdim=True)/logits.size()[1])
     z_norm = (logits - mean)/deviation
     return z_norm
 

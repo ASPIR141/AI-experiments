@@ -94,7 +94,7 @@ def main():
 
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.5), (0.5))
     ])
 
     testset = datasets.MNIST("./assets/data/mnist", train=True, download=True)
@@ -122,7 +122,7 @@ def main():
             data, target = data.to(device), target.to(device)
             output, x = model(data)
 
-            output = z_score_hardsquaremax(x)
+            output = z_score_softmax(x)
 
             _, labels = confusion_layer(
                 output, classes, len(classes))

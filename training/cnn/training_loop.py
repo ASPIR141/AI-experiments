@@ -21,11 +21,11 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
         print('CUDA support is enabled')
 
     ngpu = torch.cuda.device_count()
-    device = torch.device("cuda:0" if (use_cuda and ngpu > 0) else "cpu")
+    device = torch.device('cuda:0' if (use_cuda and ngpu > 0) else 'cpu')
 
     transform=transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.5), (0.5))
     ])
 
     trainset = datasets.MNIST("./assets/data/mnist", train=True, download=True, transform=transform)
