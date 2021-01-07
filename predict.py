@@ -1,3 +1,4 @@
+from lib.modules.activation import z_score_softmax
 import os
 import argparse
 
@@ -17,7 +18,7 @@ from petastorm.unischema import dict_to_spark_row
 
 from lib.networks import Net
 from lib.modules import confusion_layer
-from lib.modules import hardmax, hardsquaremax
+from lib.modules import hardmax, hardsquaremax, z_score_hardmax, z_score_hardsquaremax
 from lib.util import save_dataset
 from lib.schemas import MnistSchema
 
@@ -29,7 +30,7 @@ os.environ["HADOOP_HOME"] = "C:\winutils"
 
 def _arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", type=int, default=64,
+    parser.add_argument("--batch_size", type=int, default=5,
                         help="size of the batches")
     parser.add_argument("--img_size", type=int, default=32,
                         help="size of each image dimension")
@@ -96,20 +97,20 @@ def main():
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    testset = datasets.MNIST("./data/mnist", train=True, download=True)
+    testset = datasets.MNIST("./assets/data/mnist", train=True, download=True)
 
     transformed_dataset = list(
-        map(lambda data: (transform(data[0]), data[1]), list(testset)[0:63]))
+        map(lambda data: (transform(data[0]), data[1]), list(testset)[0:3000]))
     test_loader = DataLoader(
         transformed_dataset, batch_size=args.batch_size, shuffle=False)
 
     with torch.no_grad():
-        model = Net().to(device) 
+        model = Net().to(device)
 
         if use_cuda and ngpu > 1:
             model = nn.DataParallel(model, list(range(ngpu)))
 
-        model.load_state_dict(torch.load('./assets/models/classifier.pt'))
+        model.load_state_dict(torch.load('./classifier.pt'))
         model.eval()
 
         classes = list(testset.class_to_idx.values())
@@ -119,18 +120,19 @@ def main():
             data, target = data.to(device), target.to(device)
             output, x = model(data)
 
-            output = torch.exp(output)  # get probabilities
-            output = hardmax(output)
+            # output = torch.exp(output)  # get probabilities
+            output = z_score_hardsquaremax(x)
             probabilities, labels = confusion_layer(
                 output, classes, len(classes))
 
             print(f'Result: {labels}\n Target: {target}', target)
-
             labels_list += labels
-            break
 
-        mnist_data_to_petastorm_dataset(data=_transform_dataset(list(
-            testset)[0:63], labels_list), output_url=args.output_url, dataset_name='mnist')
+        mnist_data_to_petastorm_dataset(
+            data=_transform_dataset(list(testset), labels_list),
+            output_url=args.output_url,
+            dataset_name='z_score_hardmax'
+        )
 
 
 if __name__ == '__main__':

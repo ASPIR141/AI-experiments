@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 
 def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
+    print('Save model', save_model)
     torch.manual_seed(seed)
 
     use_cuda = True if torch.cuda.is_available() else False
@@ -53,4 +54,5 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
         # scheduler.step()
 
     if save_model:
-        torch.save(model.state_dict(), "../classifier.pt")
+        torch.save(model.state_dict(), "./classifier.pt")
+        print('Model saved')

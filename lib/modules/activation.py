@@ -30,7 +30,6 @@ def hardmax(X_in: Tensor) -> Tensor:
 
 def hardsquaremax(X_in: Tensor) -> Tensor:
     assert(len(X_in.shape) >= 2)
-    # x = X_in.clone() # XXX tensors pass by value, don't ref
     m = torch.sqrt(torch.sum((torch.pow(X_in, 2)), dim=1, keepdim=True))
     for idx, sum_i in enumerate(m):
         if sum_i == 0:
@@ -48,7 +47,8 @@ def z_score(logits: Tensor) -> Tensor:
     assert(len(logits.shape) >= 2)
 
     mean = torch.mean(logits)
-    deviation = torch.sqrt(torch.sum(torch.pow(logits - mean, 2))/len(logits))
+    deviation = torch.sqrt(
+        torch.sum(torch.pow(logits - mean, 2))/logits.size()[1])
     z_norm = (logits - mean)/deviation
     return z_norm
 
@@ -57,7 +57,7 @@ def z_score_hardsquaremax(logits: Tensor) -> Tensor:
     '''
     logits: Tensor, k-dimensional output from last layer. 
         Each value is  a score defined on the interval (-inf, +inf)
-    
+
     Sum of probalities = 1.
     Makes it possible to compromise between SoftMax and HardMax.
     '''
@@ -70,7 +70,7 @@ def z_score_hardmax(logits: Tensor) -> Tensor:
     '''
     logits: Tensor, k-dimensional output from last layer. 
         Each value is  a score defined on the interval (-inf, +inf)
-    
+
     Sum of probalities = 1.
     Makes it possible to compromise between SoftMax and HardMax.
     '''
@@ -79,15 +79,16 @@ def z_score_hardmax(logits: Tensor) -> Tensor:
     return probabilities
 
 # FIXME tests fail
+
+
 def z_score_softmax(logits: Tensor) -> Tensor:
     '''
     logits: Tensor, k-dimensional output from last layer. 
         Each value is  a score defined on the interval (-inf, +inf)
-    
+
     Sum of probalities = 1.
     Makes it possible to soften the effect "winners takes all" of SoftMax.
     '''
     z_norm = z_score(logits)
-    # probabilities = torch.nn.Softmax(z_norm).dim
-    probabilities = torch.exp(z_norm)/torch.sum(torch.exp(z_norm), dim=1, keepdim=True)
+    probabilities = torch.nn.functional.softmax(z_norm, dim=1)
     return probabilities

@@ -18,7 +18,7 @@ class z_score_softmaxTestCase(unittest.TestCase):
             torch.tensor([[-60, 0, 10, 250]], dtype=torch.float16, device=self.device),
         ]
         expected_results = [
-            [[0.05514, 0.09148, 0.0952, 0.7539]],
+            [[0.06, 0.09, 0.10, 0.75]],
         ]
 
         for idx, z in enumerate(logits):

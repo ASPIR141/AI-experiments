@@ -8,3 +8,4 @@ petastorm==0.9.7
 tensorboard
 tqdm
 Flask==1.1.2
+pandas==1.1.4
