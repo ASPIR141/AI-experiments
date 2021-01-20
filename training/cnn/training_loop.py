@@ -24,7 +24,7 @@ def training_loop(batch_size, epochs, gamma, seed, log_interval, save_model):
 
     transform=transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.5), (0.5))
     ])
 
     trainset = datasets.MNIST("./data/mnist", train=True, download=True, transform=transform)
