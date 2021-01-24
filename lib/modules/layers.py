@@ -2,38 +2,35 @@ import torch
 from torch import FloatTensor
 from torch.tensor import Tensor
 from typing import List, Tuple, Iterable
-from itertools import product
 
 
-def combinations(iterable: Iterable, r: int):
-    pool = tuple(iterable)
-    n = len(pool)
-    for indices in product(range(n), repeat=r):
-        yield tuple(pool[i] for i in indices)
-
-def calculate_probabilities(array: FloatTensor, v: FloatTensor, tax: FloatTensor) -> List[Tensor]:
+def naive_confusion_layer(p: Tensor, l: List, k: int) -> Tuple[List[float], List[str]]:
     """
     Arguments:
-        array: FloatTensor, tensor([[[0., 0.],[0., 1.]], [[1., 0.],[1., 1.]]])
-        v: FloatTensor (with one number)
-        tax: FloatTensor (with one number)
+        p: Tensor, probabilities from softmax layer.
+        l: List, list of labels.
+        k: Integer, a number of classes.
 
     Returns:
-        A list of Tensors: tensor([0., 0., 0., 1.])
+        probabilities, labels: Tuple[List[Float], List[Str]]
     """
-    assert(array.device == v.device == tax.device) 
-    device = array.device
+    device = p.device
 
-    probabilities = []
-    for idx, a in enumerate(array):
-        for i, value in enumerate(a):
-            if idx == i:
-                i, _ = value
-                probabilities.append(i * v)
-            else:
-                i, j = value
-                probabilities.append(torch.tensor(0., device=device) if i == 1 else ((i * j) / (1 - i)) * tax)
-    return torch.stack(probabilities)
+    v = (p.std(dim=1, unbiased=True, keepdim=True)**2)*(k)
+    tax = 1 - v
+
+    v, t = v.to(device), tax.to(device)
+    # probabilities = torch.einsum('bi,bj->bij', (p, p)) # batch outer product TODO
+    mask = torch.eye(k, dtype=torch.bool).to(device)
+    probabilities = (p*v).reshape(p.shape[0], 1, p.shape[1])*mask
+    for i, vec in enumerate(p):
+        outer = torch.where(vec == 1, torch.zeros(1).to(device), torch.outer(vec, vec)*tax[i]/(1-vec))
+        probabilities[i] = torch.where(mask, probabilities[i], outer)
+
+    probabilities, labels = zip(*(torch.topk(x.flatten(), 1) for x in probabilities))
+    labels = list(map(lambda i: f'{l[i.item()//k]}_{l[i.item()%k]}', labels))
+    probabilities = list(map(lambda x: round(x.item(), 2), probabilities))
+    return probabilities, labels
 
 def confusion_layer(p: Tensor, l: List, k: int) -> Tuple[List[float], List[str]]:
     """
@@ -47,24 +44,20 @@ def confusion_layer(p: Tensor, l: List, k: int) -> Tuple[List[float], List[str]]
     """
     device = p.device
 
-    v = torch.sqrt((k / (k - 1)) * torch.sum((p - 1 / k) ** 2, dim=1))
+    v = (p.std(dim=1, unbiased=True, keepdim=True))*(k**0.5)
     tax = 1 - v
 
     v, t = v.to(device), tax.to(device)
+    # probabilities = torch.einsum('bi,bj->bij', (p, p)) # batch outer product TODOs
+    mask = torch.eye(k, dtype=torch.bool).to(device)
+    probabilities = (p*v).reshape(p.shape[0], 1, p.shape[1])*mask
+    for i, vec in enumerate(p):
+        outer = torch.where(vec == 1, torch.zeros(1).to(device), torch.outer(vec, vec)*tax[i]/(1-vec))
+        probabilities[i] = torch.where(mask, probabilities[i], outer)
 
-    # create all possible combinations and represent each combination as a tensor to find the diagonal elements
-    # tensor([0., 1.]) -> tensor([[[0., 0.],[0., 1.]], [[1., 0.],[1., 1.]]])
-    c = [torch.tensor(list(combinations(x, 2)), dtype=torch.float).view(k, -1, 2).to(device) for x in p]
-
-    labels = ([f'{x}_{y}' for x, y in product(l, l)])
-
-    # calculate probabilities for each combination
-    probabilities = [calculate_probabilities(c, v[idx], tax[idx]) for idx, c in enumerate(c)]
-
-    # get indexes of the max probabilities, f.e. [tensor([0.1200, 0.0800, 0.3200, 0.4800]), tensor([0.1200, 0.4800, 0.3200, 0.0800])]
-    max_probabilities_indexes = [torch.argmax(x).item() for x in probabilities]
-    labels = [labels[i] for i in max_probabilities_indexes]
-    probabilities = [round(torch.max(x).item(), 2) for x in probabilities]
+    probabilities, labels = zip(*(torch.topk(x.flatten(), 1) for x in probabilities))
+    labels = list(map(lambda i: f'{l[i.item()//k]}_{l[i.item()%k]}', labels))
+    probabilities = list(map(lambda x: round(x.item(), 2), probabilities))
     return probabilities, labels
 
 
